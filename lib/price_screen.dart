@@ -1,4 +1,9 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'coin_data.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -6,6 +11,40 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String selectedCurrency = 'USD';
+  getDropdownItem() {
+    List<DropdownMenuItem<String>> list = [];
+    for (var item in currenciesList) {
+      list.add(DropdownMenuItem<String>(child: Text(item), value: item));
+    }
+    return list;
+  }
+
+  getPicker() {
+    if (Platform.isIOS) {
+      return CupertinoPicker(
+        itemExtent: 32.0,
+        onSelectedItemChanged: (index) {
+          setState(() {
+            selectedCurrency = currenciesList[index];
+          });
+        },
+        children: getCupertinoItem(currenciesList),
+      );
+    }
+    if (Platform.isAndroid) {
+      return DropdownButton<String>(
+        value: selectedCurrency,
+        items: getDropdownItem(),
+        onChanged: (val) {
+          setState(() {
+            selectedCurrency = val!;
+          });
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +63,7 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
                   '1 BTC = ? USD',
@@ -38,14 +77,21 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
           ),
           Container(
-            height: 150.0,
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(bottom: 30.0),
-            color: Colors.lightBlue,
-            child: null,
-          ),
+              height: 150.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 30.0),
+              color: Colors.lightBlue,
+              child: getPicker()),
         ],
       ),
     );
+  }
+
+  getCupertinoItem(List<String> currenciesList) {
+    List<Widget> list = [];
+    for (var item in currenciesList) {
+      list.add(Text(item));
+    }
+    return list;
   }
 }
